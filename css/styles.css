@@ -588,6 +588,10 @@ footer.site-footer .accent {
     font-size: 18px;
   }
 
+  .columns{
+    column-count: 2;
+  }
+
   header.site-header {
     padding: 40px 28px 32px;
   }
@@ -670,11 +674,26 @@ footer.site-footer .accent {
   .visit-layout > .full {
     grid-column: 1 / -1;
   }
+
+
+  /* Stack a second aside (e.g. Our Guide) below Quick Facts on the right */
+  .visit-layout > #guide {
+    grid-column: 2 / 3;
+    /* grid-row: 3 / span 3; */
+    grid-row:2;
+    align-self: start;
+  }
 }
 
 @media (min-width: 900px) {
   header.site-header h1 {
     font-size: 44px;
+  }
+
+
+
+  section.full{
+    grid-column: 1/-1;
   }
 
   .card-grid.students {
