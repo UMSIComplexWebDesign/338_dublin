@@ -35,32 +35,38 @@ body {
 }
 
 /* ---------- Skip link ---------- */
+/* Visually hidden by default; appears only when keyboard focused.
+   Present on every viewport, including mobile, so the first Tab lands here. */
 
 .skip-link {
   position: absolute;
   left: 8px;
-  top: 8px;
+  top: -200px;
   background: var(--blue);
   color: var(--maize);
   padding: 8px 14px;
   border: 2px solid var(--maize);
   font-weight: bold;
   z-index: 1000;
-  transform: translateY(-200%);
-  transition: transform 0.2s ease;
+  transition: top 0.2s ease;
 }
 
-.skip-link:focus {
-  transform: translateY(0);
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 8px;
   outline: 3px solid var(--maize);
   outline-offset: 2px;
 }
 
-/* Hidden on mobile per requirement */
-@media (max-width: 599px) {
-  .skip-link {
-    display: none;
-  }
+/* ---------- Global focus indicator (keyboard users) ---------- */
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--maize);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* ---------- Header ---------- */
@@ -148,12 +154,17 @@ nav.primary details[open] summary::after {
 }
 
 nav.primary a:hover,
-nav.primary a:focus,
-nav.primary summary:hover,
-nav.primary summary:focus {
+nav.primary summary:hover {
   background: var(--green-dark);
   color: var(--maize);
-  outline: none;
+}
+
+nav.primary a:focus-visible,
+nav.primary summary:focus-visible {
+  background: var(--green-dark);
+  color: var(--maize);
+  outline: 3px solid var(--maize);
+  outline-offset: -3px;
 }
 
 nav.primary details > ul {
@@ -230,16 +241,23 @@ main a {
   transition: color 0.2s ease, background 0.2s ease;
 }
 
-main a:hover,
-main a:focus {
-  color: var(--maize);
-  background: var(--green);
-  outline: none;
+main a:hover {
+  color: var(--paper);
+  background: var(--green-dark);
+  text-decoration-color: var(--paper);
+}
+
+main a:focus-visible {
+  color: var(--paper);
+  background: var(--green-dark);
+  text-decoration-color: var(--paper);
+  outline: 3px solid var(--maize);
+  outline-offset: 3px;
 }
 
 main a:hover h3, main a:hover p,
-main a:focus h3, main a:focus p {
-  color: var(--maize);
+main a:focus-visible h3, main a:focus-visible p {
+  color: var(--paper);
 }
 
 ul.bullets,
@@ -448,23 +466,29 @@ figcaption {
   font-size: 22px;
   line-height: 1;
   box-shadow: var(--shadow-lift);
+  visibility: hidden;
   opacity: 0;
-  pointer-events: none;
   transform: translateY(20px);
-  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, visibility 0s linear 0.25s;
   z-index: 900;
+  cursor: pointer;
 }
 
 .jump-top.visible {
+  visibility: visible;
   opacity: 1;
-  pointer-events: auto;
   transform: translateY(0);
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, visibility 0s linear 0s;
 }
 
-.jump-top:hover,
-.jump-top:focus {
+.jump-top:hover {
   background: var(--blue);
-  outline: none;
+}
+
+.jump-top:focus-visible {
+  background: var(--blue);
+  outline: 3px solid var(--maize);
+  outline-offset: 3px;
 }
 
 /* ---------- Pasture (walking sheep) ---------- */
@@ -547,19 +571,44 @@ footer.site-footer .accent {
   }
 }
 
-/* ---------- Reduced motion ---------- */
+/* ---------- Reduced motion ----------
+   Disables every animation and transition without using !important.
+   Each rule below uses the same selector specificity as the rule that
+   defines the animation/transition, so the cascade overrides it. */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001s;
-    animation-iteration-count: 1;
-    transition-duration: 0.001s;
+
+  /* Turn off every transition that the rest of the stylesheet sets up */
+  .skip-link,
+  nav.primary a,
+  nav.primary summary,
+  main a,
+  figure img,
+  .card,
+  .card.student .avatar,
+  .gallery img,
+  .jump-top {
+    transition: none;
   }
+
+  /* Turn off every keyframe animation */
+  main > section,
+  main > aside,
+  .talk-layout > section,
+  .talk-layout > aside,
+  .visit-layout > section,
+  .visit-layout > aside,
+  .hero,
+  .card,
+  .sheep,
+  .sheep-svg {
+    animation: none;
+  }
+
+  /* Cancel hover/focus transforms */
   .card:hover,
   .card:focus-within,
   .gallery img:hover,
@@ -570,10 +619,8 @@ footer.site-footer .accent {
   .card.student:focus-within .avatar {
     transform: none;
   }
-  .sheep,
-  .sheep-svg {
-    animation: none;
-  }
+
+  /* Park the sheep in view (it would otherwise be off-screen) */
   .sheep {
     transform: translateX(20px);
   }

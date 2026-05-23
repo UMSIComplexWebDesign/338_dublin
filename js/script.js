@@ -92,9 +92,36 @@
     });
   }
 
+  /* ---- Close <details> dropdown when a link inside it is activated ---- */
+  function setupNavClose() {
+    var links = document.querySelectorAll("nav.primary details > ul a");
+    links.forEach(function (link) {
+      link.addEventListener("click", function () {
+        var detail = link.closest("details");
+        if (detail) {
+          detail.open = false;
+        }
+      });
+    });
+
+    // Also close any open dropdown when focus leaves the nav entirely
+    // (helps keyboard users who tab past the nav without selecting a link)
+    var nav = document.querySelector("nav.primary");
+    if (nav) {
+      nav.addEventListener("focusout", function (event) {
+        if (!nav.contains(event.relatedTarget)) {
+          nav.querySelectorAll("details[open]").forEach(function (d) {
+            d.open = false;
+          });
+        }
+      });
+    }
+  }
+
   function init() {
     setupJumpTop();
     setupSheep();
+    setupNavClose();
   }
 
   if (document.readyState === "loading") {
